@@ -2,7 +2,7 @@
 // This file handles API calls to the YouTube Data API v3
 
 // YouTube API key
-const YOUTUBE_API_KEY = "AIzaSyB59tvqGw1VbuhDEoGltDFRMfoJWoL20CQ"; // Ganti dengan API key Anda
+const YOUTUBE_API_KEY = "AIzaSyB59tvqGw1VbuhDEoGltDFRMfoJWoL20CQ";
 
 // Storage keys
 const RECENTLY_PLAYED_KEY = "youtube_recently_played";
