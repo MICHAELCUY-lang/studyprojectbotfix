@@ -278,3 +278,306 @@ a:hover {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* Tambahan styling untuk TaskList */
+.task-card-anim-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.task-card-anim-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.task-card-anim-exit {
+  opacity: 1;
+}
+
+.task-card-anim-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 200ms, transform 200ms;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(37, 170, 96, 0.5);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(37, 170, 96, 0.7);
+}
+
+/* Focus shadow styles */
+.focus-shadow:focus {
+  box-shadow: 0 0 0 3px rgba(37, 170, 96, 0.15);
+  outline: none;
+}
+
+/* Task item hover effect */
+.task-item-hover {
+  transition: all 0.3s ease;
+}
+
+.task-item-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
+}
+
+/* Badge styles */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-weight: 600;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-high {
+  background-color: #fee2e2;
+  color: #ef4444;
+}
+
+.badge-medium {
+  background-color: #fef3c7;
+  color: #f59e0b;
+}
+
+.badge-low {
+  background-color: #d1fae5;
+  color: #10b981;
+}
+
+/* Filter styles */
+.filter-container {
+  background-color: white;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(37, 170, 96, 0.05);
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.filter-select {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  background-color: #f9fafb;
+  min-width: 160px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-select:hover, .filter-select:focus {
+  border-color: #25AA60;
+}
+
+.filter-select:focus {
+  box-shadow: 0 0 0 3px rgba(37, 170, 96, 0.1);
+  outline: none;
+}
+
+.search-container {
+  position: relative;
+  flex-grow: 1;
+  min-width: 200px;
+}
+
+.search-container input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.75rem;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  background-color: #f9fafb;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.search-container input:hover, .search-container input:focus {
+  border-color: #25AA60;
+}
+
+.search-container input:focus {
+  box-shadow: 0 0 0 3px rgba(37, 170, 96, 0.1);
+  outline: none;
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-size: 1.25rem;
+}
+
+/* Empty state styling */
+.empty-state {
+  padding: 3rem 2rem;
+  text-align: center;
+  background-color: #f9fafb;
+  border-radius: 12px;
+  color: #6b7280;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #e5e7eb;
+}
+
+.empty-state-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.empty-state-icon i {
+  font-size: 30px;
+  color: #9ca3af;
+}
+
+.empty-state-title {
+  color: #4b5563;
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+}
+
+.empty-state-text {
+  margin: 0;
+  color: #6b7280;
+  max-width: 300px;
+  line-height: 1.5;
+}
+
+/* Action buttons */
+.action-button {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  padding: 0.35rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.action-button:hover {
+  background-color: #f3f4f6;
+}
+
+.action-button.complete:hover {
+  color: #10b981;
+}
+
+.action-button.edit:hover {
+  color: #3b82f6;
+}
+
+.action-button.delete:hover {
+  color: #ef4444;
+}
+.task-card-anim-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.task-card-anim-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.task-card-anim-exit {
+  opacity: 1;
+}
+
+.task-card-anim-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 200ms, transform 200ms;
+}
+/* Animasi untuk kartu tugas */
+.task-card-anim-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.task-card-anim-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.task-card-anim-exit {
+  opacity: 1;
+}
+
+.task-card-anim-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 200ms, transform 200ms;
+}
+
+/* Animasi untuk hover pada tombol aksi */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.action-btn-pulse:hover {
+  animation: pulse 0.5s ease-in-out;
+}
+
+/* Animasi loading saat menunggu operasi database */
+@keyframes shimmer {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}
+
+.loading-shimmer {
+  background: linear-gradient(to right, #f6f7f8 8%, #edeef1 18%, #f6f7f8 33%);
+  background-size: 800px 104px;
+  animation: shimmer 1.5s infinite linear;
+}

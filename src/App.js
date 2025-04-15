@@ -21,8 +21,10 @@ import PomodoroTimer from "./components/Pomodoro/PomodoroTimer";
 import TaskList from "./components/Tasks/TaskList";
 import TaskForm from "./components/Tasks/TaskForm";
 import MusicPlayer from "./components/MusicPlayer/MusicPlayer";
+import WidgetManager from "./components/Widgets/WidgetManager";
+import PomodoroWidget from "./components/Widgets/PomodoroWidget";
 
-// Styled components with green theme
+// Styled components - dengan tema hijau
 const AppContainer = styled.div`
   min-height: 100vh;
   background-color: #f5f5f5;
@@ -31,7 +33,7 @@ const AppContainer = styled.div`
 `;
 
 const Header = styled.header`
-  background-color: #25aa60; /* Changed from #4A00E0 to match the logo */
+  background-color: #25aa60; /* Warna hijau dari logo */
   color: white;
   padding: 1rem;
   display: flex;
@@ -542,6 +544,8 @@ function TaskManager() {
                   tasks={tasks}
                   onSessionComplete={handleSessionComplete}
                 />
+                <WidgetManager />
+                <PomodoroWidget />
               </Sidebar>
             </MainContent>
           }
@@ -563,6 +567,7 @@ function TaskManager() {
 
               <Sidebar>
                 <MusicPlayer isBreak={isBreakTime} />
+                <WidgetManager />
               </Sidebar>
             </MainContent>
           }
@@ -578,6 +583,11 @@ function TaskManager() {
                   <MusicPlayer isBreak={isBreakTime} />
                 </div>
               </ContentSection>
+
+              <Sidebar>
+                <WidgetManager />
+                <PomodoroWidget />
+              </Sidebar>
             </MainContent>
           }
         />
@@ -590,6 +600,10 @@ function TaskManager() {
                 <SectionTitle>Statistik & Progres</SectionTitle>
                 <p>Fitur statistik akan segera hadir!</p>
               </ContentSection>
+
+              <Sidebar>
+                <WidgetManager />
+              </Sidebar>
             </MainContent>
           }
         />

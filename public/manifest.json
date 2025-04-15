@@ -22,7 +22,7 @@
   ],
   "start_url": "/",
   "display": "standalone",
-  "theme_color": "#4A00E0",
+  "theme_color": "#25AA60",
   "background_color": "#ffffff",
   "orientation": "portrait",
   "scope": "/",
@@ -31,6 +31,22 @@
   "lang": "id",
   "dir": "ltr",
   "prefer_related_applications": false,
+  "screenshots": [
+    {
+      "src": "screenshot1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "Tampilan Beranda StudyProjectBot"
+    },
+    {
+      "src": "screenshot2.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "Timer Pomodoro StudyProjectBot"
+    }
+  ],
   "shortcuts": [
     {
       "name": "Tambah Tugas",
@@ -54,21 +70,56 @@
       "icons": [{ "src": "logo192.png", "sizes": "192x192" }]
     }
   ],
-  "related_applications": [],
-  "screenshots": [
+  "widgets": [
     {
-      "src": "screenshot1.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "platform": "wide",
-      "label": "Tampilan Beranda StudyProjectBot"
+      "name": "Tugas Hari Ini",
+      "description": "Tampilkan tugas yang akan jatuh tempo hari ini",
+      "tag": "today-tasks",
+      "template": "today-tasks-template",
+      "ms-size": {
+        "width": 2,
+        "height": 2
+      },
+      "data": {
+        "templates": {
+          "default": {
+            "type": "status",
+            "item": "Tidak ada tugas untuk hari ini"
+          },
+          "with-tasks": {
+            "type": "list",
+            "items": "{items}"
+          }
+        },
+        "defaults": {
+          "template": "default"
+        }
+      }
     },
     {
-      "src": "screenshot2.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "platform": "wide",
-      "label": "Timer Pomodoro StudyProjectBot"
+      "name": "Timer Pomodoro",
+      "description": "Timer Pomodoro untuk sesi belajar",
+      "tag": "pomodoro-timer",
+      "template": "pomodoro-timer-template",
+      "ms-size": {
+        "width": 1,
+        "height": 1
+      },
+      "data": {
+        "templates": {
+          "default": {
+            "type": "status",
+            "item": "00:00"
+          },
+          "running": {
+            "type": "status",
+            "item": "{time}"
+          }
+        },
+        "defaults": {
+          "template": "default"
+        }
+      }
     }
   ]
 }

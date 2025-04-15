@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { format } from "date-fns";
+import { TransitionGroup, CSSTransition } from "react-transition-group";
 import {
   CategoriesModel,
   TasksModel,
@@ -11,29 +12,117 @@ import {
   cancelTaskNotification,
 } from "../../services/notification";
 
-// Styled components - fixed with $ prefix for custom props
+// Styled components - desain yang lebih modern dan elegan
 const TaskListContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
 `;
 
+const FilterSection = styled.div`
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  background-color: white;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(37, 170, 96, 0.05);
+`;
+
+const FilterSelect = styled.select`
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  background-color: #f9fafb;
+  font-size: 0.9rem;
+  min-width: 160px;
+  color: #333;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
+  &:hover {
+    border-color: #25aa60;
+  }
+
+  &:focus {
+    border-color: #25aa60;
+    box-shadow: 0 0 0 3px rgba(37, 170, 96, 0.1);
+    outline: none;
+  }
+`;
+
+const SearchInputContainer = styled.div`
+  position: relative;
+  flex-grow: 1;
+  min-width: 200px;
+`;
+
+const SearchInput = styled.input`
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.75rem;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  background-color: #f9fafb;
+  font-size: 0.9rem;
+  color: #333;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
+  &::placeholder {
+    color: #9ca3af;
+  }
+
+  &:hover {
+    border-color: #25aa60;
+  }
+
+  &:focus {
+    border-color: #25aa60;
+    box-shadow: 0 0 0 3px rgba(37, 170, 96, 0.1);
+    outline: none;
+  }
+`;
+
+const SearchIcon = styled.i`
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-size: 1.25rem;
+`;
+
 const TaskCard = styled.div`
   background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  padding: 1rem;
-  transition: transform 0.2s, box-shadow 0.2s;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+  border-left: 4px solid
+    ${(props) => {
+      if (props.$completed) return "#d1d5db";
+      if (props.$priority === "high") return "#ef4444";
+      if (props.$priority === "medium") return "#f59e0b";
+      return "#10b981";
+    }};
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
   }
 
   ${(props) =>
     props.$completed &&
     `
-    opacity: 0.7;
+    opacity: 0.75;
+    background-color: #f9fafb;
   `}
 `;
 
@@ -41,12 +130,12 @@ const TaskHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
 `;
 
 const TaskTitle = styled.h3`
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 600;
   color: #333;
   word-break: break-word;
@@ -55,32 +144,33 @@ const TaskTitle = styled.h3`
     props.$completed &&
     `
     text-decoration: line-through;
-    color: #777;
+    color: #6b7280;
   `}
 `;
 
 const TaskPriority = styled.span`
-  font-size: 0.75rem;
-  font-weight: 500;
-  padding: 0.25rem 0.5rem;
-  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 
   ${(props) => {
     if (props.$priority === "high") {
       return `
-        background-color: #ffebee;
-        color: #e53935;
+        background-color: #fee2e2;
+        color: #ef4444;
       `;
     } else if (props.$priority === "medium") {
       return `
-        background-color: #fff8e1;
-        color: #ffa000;
+        background-color: #fef3c7;
+        color: #f59e0b;
       `;
     } else {
       return `
-        background-color: #e8f5e9;
-        color: #43a047;
+        background-color: #d1fae5;
+        color: #10b981;
       `;
     }
   }}
@@ -89,13 +179,13 @@ const TaskPriority = styled.span`
 const TaskDescription = styled.p`
   margin: 0.5rem 0;
   font-size: 0.9rem;
-  color: #666;
+  color: #4b5563;
   word-break: break-word;
 
   ${(props) =>
     props.$completed &&
     `
-    color: #999;
+    color: #9ca3af;
   `}
 `;
 
@@ -109,32 +199,35 @@ const TaskFooter = styled.div`
 
 const TaskMetadata = styled.div`
   display: flex;
-  gap: 1rem;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 `;
 
 const TaskDate = styled.div`
-  color: ${(props) => (props.$isOverdue ? "#e53935" : "#666")};
+  color: ${(props) => (props.$isOverdue ? "#ef4444" : "#6b7280")};
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.35rem;
+  font-weight: ${(props) => (props.$isOverdue ? "600" : "normal")};
 `;
 
 const TaskCategory = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.2rem 0.5rem;
-  background-color: ${(props) => props.$color || "#e0e0e0"};
-  color: white;
+  gap: 0.35rem;
+  padding: 0.25rem 0.6rem;
+  background-color: ${(props) => props.$color || "#e5e7eb"}20;
+  color: ${(props) => props.$color || "#6b7280"};
   border-radius: 4px;
   font-weight: 500;
+  border: 1px solid ${(props) => props.$color || "#e5e7eb"}40;
 `;
 
 const ReminderBadge = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.2rem 0.5rem;
+  gap: 0.35rem;
+  padding: 0.25rem 0.6rem;
   background-color: rgba(37, 170, 96, 0.1);
   color: #25aa60;
   border-radius: 4px;
@@ -144,63 +237,68 @@ const ReminderBadge = styled.div`
 
 const TaskActions = styled.div`
   display: flex;
-  gap: 0.75rem;
+  gap: 0.5rem;
 `;
 
 const ActionButton = styled.button`
   background: none;
   border: none;
-  font-size: 1rem;
+  font-size: 1.1rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #666;
-  padding: 0.25rem;
-  border-radius: 4px;
-  transition: background-color 0.2s;
+  color: #6b7280;
+  padding: 0.35rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
 
   &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: #f3f4f6;
+    color: ${(props) => props.$color || "#25aa60"};
   }
 `;
 
 const EmptyState = styled.div`
-  padding: 2rem;
+  padding: 3rem 2rem;
   text-align: center;
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  color: #666;
-`;
-
-const FilterSection = styled.div`
+  background-color: #f9fafb;
+  border-radius: 12px;
+  color: #6b7280;
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #e5e7eb;
 `;
 
-const FilterSelect = styled.select`
-  padding: 0.5rem;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  background-color: white;
-  font-size: 0.9rem;
-  min-width: 120px;
-`;
+const EmptyStateIcon = styled.div`
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
 
-const SearchInput = styled.input`
-  padding: 0.5rem;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  background-color: white;
-  font-size: 0.9rem;
-  flex-grow: 1;
-  min-width: 200px;
-
-  &::placeholder {
-    color: #aaa;
+  i {
+    font-size: 30px;
+    color: #9ca3af;
   }
+`;
+
+const EmptyStateTitle = styled.h3`
+  color: #4b5563;
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+`;
+
+const EmptyStateText = styled.p`
+  margin: 0;
+  color: #6b7280;
+  max-width: 300px;
+  line-height: 1.5;
 `;
 
 // Task Item Component
@@ -232,7 +330,10 @@ const TaskItem = ({ task, categories, onEdit, onDelete, onStatusChange }) => {
   };
 
   return (
-    <TaskCard $completed={task.status === "completed"}>
+    <TaskCard
+      $completed={task.status === "completed"}
+      $priority={task.priority}
+    >
       <TaskHeader>
         <TaskTitle $completed={task.status === "completed"}>
           {task.title}
@@ -251,7 +352,7 @@ const TaskItem = ({ task, categories, onEdit, onDelete, onStatusChange }) => {
           {task.dueDate && (
             <TaskDate $isOverdue={isOverdue()}>
               <i className="material-icons" style={{ fontSize: "1rem" }}>
-                event
+                {isOverdue() ? "event_busy" : "event"}
               </i>
               {formatDate(task.dueDate)}
             </TaskDate>
@@ -259,7 +360,7 @@ const TaskItem = ({ task, categories, onEdit, onDelete, onStatusChange }) => {
 
           {category && (
             <TaskCategory $color={category.color}>
-              <i className="material-icons" style={{ fontSize: "1rem" }}>
+              <i className="material-icons" style={{ fontSize: "0.9rem" }}>
                 {category.icon || "folder"}
               </i>
               {category.name}
@@ -268,7 +369,7 @@ const TaskItem = ({ task, categories, onEdit, onDelete, onStatusChange }) => {
 
           {task.reminder && (
             <ReminderBadge>
-              <i className="material-icons" style={{ fontSize: "1rem" }}>
+              <i className="material-icons" style={{ fontSize: "0.9rem" }}>
                 notifications_active
               </i>
               Pengingat
@@ -284,15 +385,24 @@ const TaskItem = ({ task, categories, onEdit, onDelete, onStatusChange }) => {
                 ? "Tandai belum selesai"
                 : "Tandai selesai"
             }
+            $color={task.status === "completed" ? "#6b7280" : "#10b981"}
           >
             <i className="material-icons">
               {task.status === "completed" ? "refresh" : "check_circle"}
             </i>
           </ActionButton>
-          <ActionButton onClick={() => onEdit(task)} title="Edit tugas">
+          <ActionButton
+            onClick={() => onEdit(task)}
+            title="Edit tugas"
+            $color="#3b82f6"
+          >
             <i className="material-icons">edit</i>
           </ActionButton>
-          <ActionButton onClick={() => onDelete(task.id)} title="Hapus tugas">
+          <ActionButton
+            onClick={() => onDelete(task.id)}
+            title="Hapus tugas"
+            $color="#ef4444"
+          >
             <i className="material-icons">delete</i>
           </ActionButton>
         </TaskActions>
@@ -488,46 +598,56 @@ const TaskList = ({ tasks = [], onEdit, onDelete }) => {
           ))}
         </FilterSelect>
 
-        <SearchInput
-          type="text"
-          name="search"
-          value={filter.search}
-          onChange={handleFilterChange}
-          placeholder="Cari tugas..."
-        />
+        <SearchInputContainer>
+          <SearchIcon className="material-icons">search</SearchIcon>
+          <SearchInput
+            type="text"
+            name="search"
+            value={filter.search}
+            onChange={handleFilterChange}
+            placeholder="Cari tugas..."
+          />
+        </SearchInputContainer>
       </FilterSection>
 
       <TaskListContainer>
-        {filteredTasks.length > 0 ? (
-          filteredTasks.map((task) => (
-            <TaskItem
-              key={task.id}
-              task={task}
-              categories={categories}
-              onEdit={onEdit}
-              onDelete={handleDeleteTask}
-              onStatusChange={handleStatusChange}
-            />
-          ))
-        ) : (
-          <EmptyState>
-            <i
-              className="material-icons"
-              style={{ fontSize: "3rem", opacity: 0.3, marginBottom: "1rem" }}
-            >
-              assignment
-            </i>
-            <h3>Tidak ada tugas</h3>
-            <p>
-              {filter.status !== "all" ||
-              filter.priority !== "all" ||
-              filter.category !== "all" ||
-              filter.search
-                ? "Coba ubah filter untuk melihat lebih banyak tugas"
-                : "Klik tombol + untuk menambahkan tugas baru"}
-            </p>
-          </EmptyState>
-        )}
+        <TransitionGroup component={null}>
+          {filteredTasks.length > 0 ? (
+            filteredTasks.map((task) => (
+              <CSSTransition
+                key={task.id}
+                timeout={300}
+                classNames="task-card-anim"
+              >
+                <TaskItem
+                  key={task.id}
+                  task={task}
+                  categories={categories}
+                  onEdit={onEdit}
+                  onDelete={handleDeleteTask}
+                  onStatusChange={handleStatusChange}
+                />
+              </CSSTransition>
+            ))
+          ) : (
+            <CSSTransition timeout={300} classNames="task-card-anim">
+              <EmptyState>
+                <EmptyStateIcon>
+                  <i className="material-icons">assignment</i>
+                </EmptyStateIcon>
+                <EmptyStateTitle>Tidak ada tugas</EmptyStateTitle>
+                <EmptyStateText>
+                  {filter.status !== "all" ||
+                  filter.priority !== "all" ||
+                  filter.category !== "all" ||
+                  filter.search
+                    ? "Coba ubah filter untuk melihat lebih banyak tugas"
+                    : "Klik tombol + untuk menambahkan tugas baru"}
+                </EmptyStateText>
+              </EmptyState>
+            </CSSTransition>
+          )}
+        </TransitionGroup>
       </TaskListContainer>
     </div>
   );
