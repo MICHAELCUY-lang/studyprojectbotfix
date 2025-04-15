@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -9,7 +9,11 @@ import {
 } from "react-router-dom";
 import styled from "styled-components";
 import { register } from "./serviceWorkerRegistration";
-import { requestNotificationPermission } from "./services/notification";
+import {
+  requestNotificationPermission,
+  checkScheduledNotifications,
+  showNotification,
+} from "./services/notification";
 import { initializeDatabase, TasksModel } from "./services/db";
 
 // Import components
@@ -83,6 +87,7 @@ const Navigation = styled.nav`
   justify-content: space-around;
   padding: 0.5rem;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  z-index: 100;
 
   @media (min-width: 768px) {
     display: none;
@@ -95,7 +100,7 @@ const NavLink = styled(Link)`
   align-items: center;
   text-decoration: none;
   color: ${(props) =>
-    props.active ? "#25AA60" : "#777"}; /* Changed from #4A00E0 */
+    props.$active ? "#25AA60" : "#777"}; /* Changed from #4A00E0 */
   font-size: 0.8rem;
   padding: 0.5rem;
   border-radius: 8px;
@@ -205,6 +210,48 @@ const InstallPrompt = styled.div`
   }
 `;
 
+const NotificationBanner = styled.div`
+  background-color: ${(props) =>
+    props.$permission === "granted"
+      ? "rgba(39, 174, 96, 0.1)"
+      : "rgba(243, 156, 18, 0.1)"};
+  border-left: 4px solid
+    ${(props) => (props.$permission === "granted" ? "#27ae60" : "#f39c12")};
+  padding: 0.8rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+
+  i {
+    font-size: 1.5rem;
+    color: ${(props) =>
+      props.$permission === "granted" ? "#27ae60" : "#f39c12"};
+  }
+
+  div {
+    flex: 1;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+
+  button {
+    background-color: ${(props) =>
+      props.$permission === "granted" ? "#27ae60" : "#f39c12"};
+    color: white;
+    border: none;
+    padding: 0.5rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+  }
+`;
+
 // TaskManager component to handle task state
 function TaskManager() {
   const [tasks, setTasks] = useState([]);
@@ -214,7 +261,13 @@ function TaskManager() {
   const [isBreakTime, setIsBreakTime] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [notificationPermission, setNotificationPermission] = useState(
+    Notification.permission
+  );
   const navigate = useNavigate();
+
+  // Notification check interval
+  const notificationIntervalRef = useRef(null);
 
   // Inisialisasi database dan service worker
   useEffect(() => {
@@ -223,7 +276,19 @@ function TaskManager() {
       await initializeDatabase();
 
       // Minta izin notifikasi
-      await requestNotificationPermission();
+      const permissionResult = await requestNotificationPermission();
+      setNotificationPermission(permissionResult.permission);
+
+      // Jika notifikasi diizinkan, periksa jadwal notifikasi
+      if (permissionResult.permission === "granted") {
+        // Periksa notifikasi yang dijadwalkan
+        checkScheduledNotifications();
+
+        // Set interval untuk memeriksa notifikasi setiap menit
+        notificationIntervalRef.current = setInterval(() => {
+          checkScheduledNotifications();
+        }, 60000);
+      }
 
       // Load tasks
       const taskData = await TasksModel.getAllTasks();
@@ -231,6 +296,16 @@ function TaskManager() {
 
       // Tanda inisialisasi selesai
       setIsInitialized(true);
+
+      // Tampilkan notifikasi selamat datang
+      if (permissionResult.permission === "granted") {
+        setTimeout(() => {
+          showNotification("Selamat datang di StudyProjectBot", {
+            body: "Aplikasi siap digunakan. Klik untuk mulai mengelola tugas Anda.",
+            icon: "/logo192.png",
+          });
+        }, 2000);
+      }
     };
 
     initApp();
@@ -256,7 +331,36 @@ function TaskManager() {
       console.log("PWA was installed");
       setDeferredPrompt(null);
     });
+
+    // Clean up interval on unmount
+    return () => {
+      if (notificationIntervalRef.current) {
+        clearInterval(notificationIntervalRef.current);
+      }
+    };
   }, []);
+
+  // Request notification permission
+  const requestPermission = async () => {
+    const permissionResult = await requestNotificationPermission();
+    setNotificationPermission(permissionResult.permission);
+
+    if (permissionResult.permission === "granted") {
+      // Start checking for scheduled notifications
+      if (!notificationIntervalRef.current) {
+        checkScheduledNotifications();
+        notificationIntervalRef.current = setInterval(() => {
+          checkScheduledNotifications();
+        }, 60000);
+      }
+
+      // Show confirmation notification
+      showNotification("Notifikasi diaktifkan", {
+        body: "Anda akan menerima pengingat untuk tugas dengan deadline.",
+        icon: "/logo192.png",
+      });
+    }
+  };
 
   // Handler for task form submission
   const handleTaskSubmit = async (taskData) => {
@@ -270,12 +374,28 @@ function TaskManager() {
             task.id === editingTask.id ? { ...task, ...taskData } : task
           )
         );
+
+        return editingTask.id;
       } else {
         // Add new task
         const id = await TasksModel.addTask(taskData);
         const newTask = { id, ...taskData };
 
         setTasks((prevTasks) => [...prevTasks, newTask]);
+
+        // Show confirmation notification for new task with reminder
+        if (
+          taskData.reminder &&
+          taskData.dueDate &&
+          notificationPermission === "granted"
+        ) {
+          showNotification("Tugas baru dengan pengingat", {
+            body: `"${taskData.title}" ditambahkan dengan pengingat 1 jam sebelum deadline.`,
+            icon: "/logo192.png",
+          });
+        }
+
+        return id;
       }
 
       // Close modal
@@ -286,6 +406,7 @@ function TaskManager() {
       navigate("/tasks");
     } catch (error) {
       console.error("Error submitting task:", error);
+      return null;
     }
   };
 
@@ -294,8 +415,11 @@ function TaskManager() {
     try {
       await TasksModel.deleteTask(taskId);
       setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+
+      return true;
     } catch (error) {
       console.error("Error deleting task:", error);
+      return false;
     }
   };
 
@@ -309,6 +433,24 @@ function TaskManager() {
   const handleSessionComplete = (sessionData) => {
     // Toggle break time
     setIsBreakTime(sessionData.type === "work");
+
+    // Show notification when session completes
+    if (notificationPermission === "granted") {
+      let title, body;
+
+      if (sessionData.type === "work") {
+        title = "Sesi fokus selesai!";
+        body = "Saatnya istirahat sejenak. Selamat beristirahat!";
+      } else {
+        title = "Istirahat selesai!";
+        body = "Waktunya kembali fokus. Anda bisa melakukannya!";
+      }
+
+      showNotification(title, {
+        body: body,
+        icon: "/logo192.png",
+      });
+    }
   };
 
   // Install PWA handler
@@ -353,6 +495,28 @@ function TaskManager() {
             <div>Install StudyProjectBot untuk pengalaman yang lebih baik!</div>
             <button onClick={handleInstallClick}>Install</button>
           </InstallPrompt>
+        </div>
+      )}
+
+      {notificationPermission !== "granted" && (
+        <div style={{ padding: "0 1.5rem" }}>
+          <NotificationBanner $permission={notificationPermission}>
+            <i className="material-icons">
+              {notificationPermission === "denied"
+                ? "notifications_off"
+                : "notifications"}
+            </i>
+            <div>
+              <p>
+                {notificationPermission === "denied"
+                  ? "Notifikasi diblokir oleh browser. Aktifkan notifikasi di pengaturan browser untuk fitur pengingat tugas dan timer."
+                  : "Aktifkan notifikasi untuk mendapatkan pengingat tugas dan timer."}
+              </p>
+            </div>
+            {notificationPermission !== "denied" && (
+              <button onClick={requestPermission}>Aktifkan</button>
+            )}
+          </NotificationBanner>
         </div>
       )}
 
@@ -434,7 +598,7 @@ function TaskManager() {
       <Navigation>
         <NavLink
           to="/tasks"
-          active={activeTab === "tasks" ? 1 : 0}
+          $active={activeTab === "tasks" ? 1 : 0}
           onClick={() => setActiveTab("tasks")}
         >
           <i className="material-icons">assignment</i>
@@ -442,7 +606,7 @@ function TaskManager() {
         </NavLink>
         <NavLink
           to="/pomodoro"
-          active={activeTab === "pomodoro" ? 1 : 0}
+          $active={activeTab === "pomodoro" ? 1 : 0}
           onClick={() => setActiveTab("pomodoro")}
         >
           <i className="material-icons">timer</i>
@@ -450,7 +614,7 @@ function TaskManager() {
         </NavLink>
         <NavLink
           to="/music"
-          active={activeTab === "music" ? 1 : 0}
+          $active={activeTab === "music" ? 1 : 0}
           onClick={() => setActiveTab("music")}
         >
           <i className="material-icons">music_note</i>
@@ -458,7 +622,7 @@ function TaskManager() {
         </NavLink>
         <NavLink
           to="/stats"
-          active={activeTab === "stats" ? 1 : 0}
+          $active={activeTab === "stats" ? 1 : 0}
           onClick={() => setActiveTab("stats")}
         >
           <i className="material-icons">bar_chart</i>

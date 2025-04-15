@@ -2,9 +2,13 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import styled, { keyframes, css } from "styled-components";
 import { CategoriesModel } from "../../services/db";
+import NotificationSettings from "./NotificationSettings";
 import {
   scheduleTaskNotification,
+  scheduleDailyReminder,
+  scheduleIntervalReminder,
   cancelTaskNotification,
+  getNotificationSettings,
   requestNotificationPermission,
 } from "../../services/notification";
 
@@ -626,6 +630,41 @@ const TaskForm = ({ initialTask, onSubmit, onCancel }) => {
     setReminder(!reminder);
   };
 
+  // Fungsi untuk menangani perubahan pengaturan notifikasi
+  const handleApplyNotificationSettings = async (settings, taskId) => {
+    if (!reminder || !watchDate) return;
+
+    // Buat task object untuk notifikasi
+    const taskObject = {
+      id: taskId || task.id,
+      title: watchTitle,
+      dueDate: watchDate ? new Date(watchDate) : null,
+      reminder: reminder,
+    };
+
+    // Membatalkan semua notifikasi yang ada
+    if (taskId || task.id) {
+      cancelTaskNotification(taskId || task.id);
+    }
+
+    // Jadwalkan notifikasi berdasarkan pengaturan
+    if (settings.deadlineEnabled && taskObject.dueDate) {
+      await scheduleTaskNotification(taskObject, 60); // 60 menit sebelum deadline
+    }
+
+    if (settings.dailyEnabled) {
+      await scheduleDailyReminder(
+        taskObject,
+        settings.dailyHour,
+        settings.dailyMinute
+      );
+    }
+
+    if (settings.intervalEnabled) {
+      await scheduleIntervalReminder(taskObject, settings.intervalHours);
+    }
+  };
+
   // Get current category color & icon
   const getCurrentCategory = () => {
     const categoryId = parseInt(watchCategory);
@@ -667,9 +706,6 @@ const TaskForm = ({ initialTask, onSubmit, onCancel }) => {
       // Add reminder setting
       data.reminder = reminder;
 
-      // Simulate network request
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
       // If task has an ID and reminder has changed, handle notification changes
       if (task.id) {
         if (task.reminder && !reminder) {
@@ -680,15 +716,12 @@ const TaskForm = ({ initialTask, onSubmit, onCancel }) => {
 
       const result = await onSubmit(data);
 
-      // Schedule notification if reminder is enabled and there's a due date
-      if (data.reminder && data.dueDate) {
-        const taskId = task.id || result; // Use existing ID or new ID returned from onSubmit
+      // Jadwalkan notifikasi jika reminder diaktifkan dan form disubmit
+      if (reminder) {
+        const settings = getNotificationSettings();
+        const taskId = task.id || result;
         if (taskId) {
-          const taskWithId = {
-            ...data,
-            id: taskId,
-          };
-          scheduleTaskNotification(taskWithId, 60); // Notify 60 minutes before deadline
+          await handleApplyNotificationSettings(settings, taskId);
         }
       }
 
@@ -860,13 +893,23 @@ const TaskForm = ({ initialTask, onSubmit, onCancel }) => {
             </ReminderCheck>
             <ReminderText>
               <p>Ingatkan saya sebelum deadline</p>
-              <span>Anda akan menerima notifikasi 1 jam sebelum deadline</span>
+              <span>Anda akan menerima notifikasi untuk tugas ini</span>
             </ReminderText>
             <ReminderIcon>
               <i className="material-icons">alarm</i>
             </ReminderIcon>
           </ReminderOption>
         </FormGroup>
+
+        {/* Add notification settings component if reminder is enabled */}
+        {reminder && (
+          <FormGroup style={{ marginTop: "1rem" }}>
+            <NotificationSettings
+              taskId={task.id}
+              onApplySettings={handleApplyNotificationSettings}
+            />
+          </FormGroup>
+        )}
 
         {watchTitle && watchDate && (
           <FormGroup style={{ marginTop: "1rem" }}>

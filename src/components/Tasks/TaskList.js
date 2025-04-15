@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { format } from "date-fns";
-import { CategoriesModel, TasksModel } from "../../services/db";
+import {
+  CategoriesModel,
+  TasksModel,
+  StatisticsModel,
+} from "../../services/db";
+import {
+  scheduleTaskNotification,
+  cancelTaskNotification,
+} from "../../services/notification";
 
 // Styled components - fixed with $ prefix for custom props
 const TaskListContainer = styled.div`
@@ -120,6 +128,18 @@ const TaskCategory = styled.div`
   color: white;
   border-radius: 4px;
   font-weight: 500;
+`;
+
+const ReminderBadge = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.5rem;
+  background-color: rgba(37, 170, 96, 0.1);
+  color: #25aa60;
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 0.7rem;
 `;
 
 const TaskActions = styled.div`
@@ -245,6 +265,15 @@ const TaskItem = ({ task, categories, onEdit, onDelete, onStatusChange }) => {
               {category.name}
             </TaskCategory>
           )}
+
+          {task.reminder && (
+            <ReminderBadge>
+              <i className="material-icons" style={{ fontSize: "1rem" }}>
+                notifications_active
+              </i>
+              Pengingat
+            </ReminderBadge>
+          )}
         </TaskMetadata>
 
         <TaskActions>
@@ -285,9 +314,23 @@ const TaskList = ({ tasks = [], onEdit, onDelete }) => {
 
   // Load categories
   useEffect(() => {
-    CategoriesModel.getAllCategories().then((data) => {
-      setCategories(data);
-    });
+    const loadCategories = async () => {
+      try {
+        const data = await CategoriesModel.getAllCategories();
+        setCategories(data || []);
+      } catch (error) {
+        console.error("Error loading categories:", error);
+        // Fallback default categories
+        setCategories([
+          { id: 1, name: "Kuliah", color: "#4A00E0", icon: "school" },
+          { id: 2, name: "Pekerjaan", color: "#0077B6", icon: "work" },
+          { id: 3, name: "Pribadi", color: "#00B4D8", icon: "person" },
+          { id: 4, name: "Proyek", color: "#F72585", icon: "code" },
+        ]);
+      }
+    };
+
+    loadCategories();
   }, []);
 
   // Apply filters
@@ -363,7 +406,20 @@ const TaskList = ({ tasks = [], onEdit, onDelete }) => {
 
       // Update statistics if task is completed
       if (newStatus === "completed") {
-        await StatisticsModel.incrementCompletedTasks();
+        try {
+          await StatisticsModel.incrementCompletedTasks();
+
+          // Cancel notification for completed task
+          cancelTaskNotification(taskId);
+        } catch (error) {
+          console.error("Error updating statistics:", error);
+        }
+      } else if (newStatus === "pending") {
+        // If task is marked as pending again, reschedule notification
+        const task = tasks.find((t) => t.id === taskId);
+        if (task && task.dueDate && task.reminder) {
+          scheduleTaskNotification(task, 60); // Notifikasi 60 menit sebelum deadline
+        }
       }
 
       // Find and update the task in the tasks list
@@ -379,6 +435,19 @@ const TaskList = ({ tasks = [], onEdit, onDelete }) => {
       );
     } catch (error) {
       console.error("Error updating task status:", error);
+    }
+  };
+
+  // Handle task deletion
+  const handleDeleteTask = async (taskId) => {
+    try {
+      // Cancel any scheduled notification for this task
+      cancelTaskNotification(taskId);
+
+      // Delete the task
+      onDelete(taskId);
+    } catch (error) {
+      console.error("Error deleting task:", error);
     }
   };
 
@@ -436,7 +505,7 @@ const TaskList = ({ tasks = [], onEdit, onDelete }) => {
               task={task}
               categories={categories}
               onEdit={onEdit}
-              onDelete={onDelete}
+              onDelete={handleDeleteTask}
               onStatusChange={handleStatusChange}
             />
           ))

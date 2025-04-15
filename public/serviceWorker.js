@@ -1,3 +1,5 @@
+// public/serviceWorker.js
+
 // Nama cache yang akan digunakan
 const CACHE_NAME = "studyprojectbot-v1";
 
@@ -117,11 +119,21 @@ self.addEventListener("fetch", (event) => {
 
 // Handle push notifications
 self.addEventListener("push", (event) => {
-  const data = event.data.json();
+  let data;
+  try {
+    data = event.data.json();
+  } catch (e) {
+    data = {
+      title: "Notifikasi Baru",
+      body: event.data ? event.data.text() : "Tidak ada detail tersedia",
+      url: "/",
+    };
+  }
+
   const options = {
     body: data.body,
     icon: "/logo192.png",
-    badge: "/badge.png",
+    badge: "/logo192.png",
     vibrate: [100, 50, 100],
     data: {
       url: data.url || "/",
@@ -164,3 +176,56 @@ self.addEventListener("notificationclick", (event) => {
     })
   );
 });
+
+// Handle messages from the main thread
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "CHECK_SCHEDULED_NOTIFICATIONS") {
+    checkScheduledNotifications();
+  }
+});
+
+// Function to check scheduled notifications
+async function checkScheduledNotifications() {
+  try {
+    // Open a cache to use for persistent storage
+    const cache = await caches.open("notifications-store");
+    const response = await cache.match("scheduled-notifications");
+
+    if (!response) return;
+
+    const { notifications } = await response.json();
+    const now = Date.now();
+    const notificationsToShow = [];
+    const remainingNotifications = [];
+
+    // Check which notifications should be shown
+    notifications.forEach((notification) => {
+      if (notification.scheduledTime <= now) {
+        notificationsToShow.push(notification);
+      } else {
+        remainingNotifications.push(notification);
+      }
+    });
+
+    // Save remaining notifications
+    await cache.put(
+      "scheduled-notifications",
+      new Response(JSON.stringify({ notifications: remainingNotifications }))
+    );
+
+    // Show notifications
+    notificationsToShow.forEach((notification) => {
+      self.registration.showNotification(notification.title, {
+        body: notification.body,
+        icon: "/logo192.png",
+        badge: "/logo192.png",
+        data: { url: notification.url },
+      });
+    });
+  } catch (error) {
+    console.error("Error checking scheduled notifications:", error);
+  }
+}
+
+// Set up a periodic check for scheduled notifications
+setInterval(checkScheduledNotifications, 60000); // Check every minute
