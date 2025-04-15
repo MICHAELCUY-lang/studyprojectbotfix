@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Offline - StudyProjectBot</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+    
+    .container {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      max-width: 500px;
+    }
+    
+    h1 {
+      color: #4A00E0;
+      margin-top: 0;
+    }
+    
+    p {
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    
+    .emoji {
+      font-size: 60px;
+      margin-bottom: 20px;
+    }
+    
+    .button {
+      background-color: #4A00E0;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+    
+    .button:hover {
+      background-color: #3700b3;
+    }
+    
+    .features {
+      list-style-type: none;
+      padding: 0;
+      margin: 20px 0;
+      text-align: left;
+    }
+    
+    .features li {
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .features li::before {
+      content: "✓";
+      color: #4A00E0;
+      font-weight: bold;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="emoji">🔌</div>
+    <h1>Anda Sedang Offline</h1>
+    <p>Sepertinya Anda tidak terhubung ke internet saat ini. Beberapa fitur StudyProjectBot tetap dapat digunakan meskipun offline:</p>
+    
+    <ul class="features">
+      <li>Melihat tugas yang telah disimpan</li>
+      <li>Menggunakan Pomodoro Timer</li>
+      <li>Melihat progres tugas yang sudah disimpan</li>
+    </ul>
+    
+    <p>Silakan periksa koneksi internet Anda dan coba lagi nanti untuk akses penuh ke semua fitur.</p>
+    
+    <button class="button" onclick="window.location.reload()">Coba Lagi</button>
+  </div>
+</body>
+</html>

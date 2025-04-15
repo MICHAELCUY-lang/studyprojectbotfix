@@ -1,4 +1,4 @@
-/* New Color Scheme for StudyProjectBot 
+/* Base Color Scheme for StudyProjectBot 
  * Based on the logo green color #25AA60
  */
 :root {
@@ -25,10 +25,17 @@
   --divider-color: #EEEEEE;    /* Very light grey for dividers */
 }
 
+/* Reset and base styles */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+html, body {
+  width: 100%;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+  height: 100%;
 }
 
 body {
@@ -39,17 +46,174 @@ body {
   background-color: var(--background-light);
   color: var(--text-primary);
   line-height: 1.6;
+  position: relative;
+  /* Removed padding-top since header can touch the top */
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+/* Make sure images and other elements don't cause horizontal overflow */
+img, video, canvas, svg, iframe, object, embed {
+  max-width: 100%;
+  height: auto;
 }
 
-/* Margin untuk konten agar tidak tertutup oleh navigation bar mobile */
+/* Ensures the app container doesn't cause overflow */
+#root {
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+  /* Removed padding-top */
+}
+
+/* Header styles - ensure full width on mobile and center content */
+header {
+  width: 100vw !important; /* Force full width */
+  max-width: 100vw !important;
+  left: 0;
+  right: 0;
+  box-sizing: border-box;
+  padding: 1rem 1.5rem !important;
+  display: flex;
+  justify-content: center; /* Center the header content */
+  margin-bottom: 16px !important; /* Keep space below the header */
+}
+
+header h1 {
+  text-align: center;
+  width: 100%;
+}
+
+/* Main content container adjustments */
+main {
+  width: 100% !important; 
+  max-width: 100% !important;
+  padding: 16px 0 !important; /* Add padding top and bottom, but not sides */
+  overflow-x: hidden;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center content horizontally */
+}
+
+/* Force center alignment for all main direct children */
+main > * {
+  width: 92% !important; /* Control width with percentage */
+  max-width: 450px !important; /* Control maximum width for better appearance on mobile */
+  margin-left: auto !important;
+  margin-right: auto !important;
+  margin-bottom: 16px !important; /* Add space between components */
+  box-sizing: border-box !important;
+}
+
+/* Fix content sections to prevent overflow and center them */
+section, aside, article, div {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Override for the main header - allow it to touch top */
+header.header, .header {
+  margin-top: 0 !important;
+  padding-top: 16px !important;
+  padding-bottom: 16px !important;
+}
+
+/* Green music card styling */
+.musik-fokus, .music-fokus, .fokus, [class*="music-player"] {
+  width: 92% !important;
+  max-width: 450px !important;
+  margin: 16px auto !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+/* Ensure all content cards are centered with consistent width */
+.content-section, .widget-container, .music-player-container, .pomodoro-container, 
+.task-list-container, .main-content > *, .music-player, .pomodoro-timer, .task-form {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  width: 92% !important;
+  max-width: 450px !important; /* Control width for better appearance */
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+/* Adjusted margin for bottom navigation */
 @media (max-width: 767px) {
   body {
-    margin-bottom: 4rem;
+    margin-bottom: 5rem; /* Increase bottom margin to avoid content being hidden by nav */
+    padding-bottom: 1rem;
   }
+  
+  /* Make content fill width */
+  .sidebar {
+    width: 100% !important;
+  }
+  
+  /* Card styling for mobile */
+  .content-section {
+    border-radius: 12px;
+    width: 100% !important;
+    padding: 1rem !important;
+    margin-bottom: 1rem;
+  }
+  
+  /* Mobile grid adjustments */
+  .main-content {
+    display: block !important; /* Override grid for mobile */
+    width: 100% !important;
+  }
+}
+
+/* Specific fixes for individual components */
+/* Focus section and Musik Fokus card fixes */
+.focus-header, .music-player-header, .music-mini-player {
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 12px 16px !important;
+}
+
+/* Select dropdown for "Pilih Tugas" */
+select, .task-select, input, .form-control {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 8px auto !important;
+}
+
+/* Container for selections and form fields */
+.task-selection, .form-group {
+  width: 100% !important;
+  padding: 12px 16px !important;
+  margin: 0 auto !important;
+}
+
+/* Timer container */
+.timer-container, .timer-display, .circle-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.timer-text, .time-text {
+  margin: 0 auto !important;
+  text-align: center !important;
+}
+
+/* Bottom navigation with absolute positioning to ensure it's centered */
+.navigation {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  display: flex !important;
+  justify-content: space-around !important;
+  background-color: white !important;
+  border-top: 1px solid #eee !important;
+  padding: 8px 0 !important;
+  z-index: 100 !important;
 }
 
 /* Button styles with theme colors */
@@ -94,6 +258,7 @@ input, textarea, select {
   border: 1px solid var(--border-color);
   border-radius: 4px;
   transition: border-color 0.2s ease;
+  max-width: 100%; /* Ensure form elements don't overflow */
 }
 
 input:focus, textarea:focus, select:focus {
@@ -111,6 +276,85 @@ a {
 
 a:hover {
   color: var(--primary-dark);
+}
+
+/* Fix horizontal scroll in filter section */
+.filter-section {
+  width: 100% !important;
+  overflow-x: auto; /* Allow horizontal scroll only within the filter section if needed */
+  flex-wrap: wrap !important;
+  padding: 1rem !important;
+}
+
+/* Mobile optimized filter components */
+@media (max-width: 767px) {
+  .filter-section {
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+  }
+  
+  .filter-select, 
+  .search-input {
+    width: 100% !important;
+  }
+}
+
+/* Responsive task cards */
+.task-card {
+  width: 100% !important;
+  margin-bottom: 1rem !important;
+}
+
+/* Responsive modal */
+.modal {
+  padding: 1rem !important;
+}
+
+.modal-content {
+  width: 95% !important;
+  max-height: 85vh !important;
+}
+
+/* Navigation items styling */
+.navigation a, .nav-link {
+  flex: 1;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  text-decoration: none !important;
+  padding: 4px 0 !important;
+  color: #666 !important;
+  font-size: 0.8rem !important;
+}
+
+.navigation a.active, .nav-link.active {
+  color: #25AA60 !important;
+}
+
+.navigation a i, .nav-link i {
+  font-size: 1.5rem !important;
+  margin-bottom: 4px !important;
+}
+
+/* Specific styles for the timer digits */
+.timer-text, .time-text, .timer-digits {
+  font-size: 3.5rem !important;
+  font-weight: 700 !important;
+  color: #25AA60 !important;
+  text-align: center !important;
+  margin: 0 auto !important;
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+/* Fixing any potential sidebar issues */
+.sidebar, aside {
+  width: 92% !important;
+  max-width: 450px !important;
+  margin: 0 auto !important;
 }
 
 /* Utility classes */
@@ -244,6 +488,7 @@ a:hover {
   border-radius: 4px;
   margin-bottom: 1rem;
   font-weight: 500;
+  width: 100%;
 }
 
 .notification.success {
@@ -279,7 +524,7 @@ a:hover {
   to { transform: rotate(360deg); }
 }
 
-/* Tambahan styling untuk TaskList */
+/* Task list animations */
 .task-card-anim-enter {
   opacity: 0;
   transform: translateY(10px);
@@ -364,7 +609,7 @@ a:hover {
   color: #10b981;
 }
 
-/* Filter styles */
+/* Filter container styles */
 .filter-container {
   background-color: white;
   border-radius: 12px;
@@ -374,14 +619,16 @@ a:hover {
   gap: 1rem;
   flex-wrap: wrap;
   margin-bottom: 1.5rem;
+  width: 100%;
 }
 
+/* Responsive filter select */
 .filter-select {
   padding: 0.75rem 1rem;
   border-radius: 8px;
   border: 1px solid #e0e0e0;
   background-color: #f9fafb;
-  min-width: 160px;
+  min-width: 100%;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
@@ -400,10 +647,12 @@ a:hover {
   outline: none;
 }
 
+/* Responsive search container */
 .search-container {
   position: relative;
   flex-grow: 1;
-  min-width: 200px;
+  min-width: 100%;
+  width: 100%;
 }
 
 .search-container input {
@@ -446,6 +695,7 @@ a:hover {
   align-items: center;
   justify-content: center;
   border: 2px dashed #e5e7eb;
+  width: 100%;
 }
 
 .empty-state-icon {
@@ -507,77 +757,186 @@ a:hover {
 .action-button.delete:hover {
   color: #ef4444;
 }
-.task-card-anim-enter {
-  opacity: 0;
-  transform: translateY(10px);
+
+/* Music player responsive fixes */
+.music-player-container {
+  width: 100% !important;
 }
 
-.task-card-anim-enter-active {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 300ms, transform 300ms;
+/* Pomodoro timer responsive fixes */
+.pomodoro-container {
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
-.task-card-anim-exit {
-  opacity: 1;
+/* Widget container responsive fixes */
+.widget-container {
+  width: 100% !important;
 }
 
-.task-card-anim-exit-active {
-  opacity: 0;
-  transform: translateY(-10px);
-  transition: opacity 200ms, transform 200ms;
-}
-/* Animasi untuk kartu tugas */
-.task-card-anim-enter {
-  opacity: 0;
-  transform: translateY(10px);
-}
-
-.task-card-anim-enter-active {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 300ms, transform 300ms;
-}
-
-.task-card-anim-exit {
-  opacity: 1;
+/* Floating action button repositioned */
+.floating-button {
+  position: fixed !important;
+  bottom: 5rem !important; /* Position above navigation on mobile */
+  right: 4% !important; /* Position relative to the edge of the screen */
+  z-index: 99 !important;
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 50% !important;
+  background-color: #25aa60 !important;
+  color: white !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 4px 12px rgba(37, 170, 96, 0.25) !important;
 }
 
-.task-card-anim-exit-active {
-  opacity: 0;
-  transform: translateY(-10px);
-  transition: opacity 200ms, transform 200ms;
+/* Music player card specific styles */
+.music-fokus, .musik-fokus {
+  background-color: #25AA60 !important;
+  color: white !important;
+  border-radius: 12px !important;
+  margin-bottom: 16px !important;
+  width: 92% !important;
+  max-width: 450px !important;
 }
 
-/* Animasi untuk hover pada tombol aksi */
-@keyframes pulse {
-  0% {
-    transform: scale(1);
+/* Focus header and content */
+.fokus-header, .fokus {
+  width: 92% !important;
+  max-width: 450px !important;
+  margin: 0 auto 16px auto !important;
+  background-color: #25AA60 !important;
+  color: white !important;
+  border-radius: 12px !important;
+  padding: 16px !important;
+}
+
+/* Ensure white cards below the green header have consistent styling */
+.white-card, .task-selection {
+  background-color: white !important;
+  border-radius: 12px !important;
+  width: 92% !important;
+  max-width: 450px !important;
+  margin: 0 auto 16px auto !important;
+  padding: 16px !important;
+}
+
+/* Media queries for different screen sizes */
+/* Small devices (landscape phones) */
+@media (min-width: 576px) {
+  .filter-section {
+    flex-direction: row !important;
   }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-.action-btn-pulse:hover {
-  animation: pulse 0.5s ease-in-out;
-}
-
-/* Animasi loading saat menunggu operasi database */
-@keyframes shimmer {
-  0% {
-    background-position: -468px 0;
-  }
-  100% {
-    background-position: 468px 0;
+  
+  .filter-select {
+    min-width: 160px;
+    width: auto;
   }
 }
 
-.loading-shimmer {
-  background: linear-gradient(to right, #f6f7f8 8%, #edeef1 18%, #f6f7f8 33%);
-  background-size: 800px 104px;
-  animation: shimmer 1.5s infinite linear;
+/* Media queries for different screen sizes */
+/* Medium devices (tablets) */
+@media (min-width: 768px) {
+  body {
+    margin-bottom: 0; /* Remove bottom margin for desktop */
+  }
+  
+  .main-content {
+    display: grid !important;
+    grid-template-columns: 3fr 1fr !important;
+    gap: 1.5rem !important;
+    max-width: 1000px !important; /* Wider max-width for desktop/tablet */
+  }
+  
+  main > * {
+    max-width: 1000px; /* Increase max-width for larger screens */
+  }
+  
+  .content-section, .widget-container, .music-player-container, .pomodoro-container {
+    max-width: 100% !important; /* Allow components to fill the grid areas */
+  }
+  
+  .floating-button {
+    bottom: 1.5rem !important; /* Position correctly for desktop */
+    right: 1.5rem !important; /* Reset to the original position for larger screens */
+    margin-right: 0 !important; /* Reset margin for larger screens */
+    transform: none !important; /* Reset transform for larger screens */
+  }
+  
+  .search-container, .filter-select {
+    min-width: auto;
+  }
+}
+
+/* Specific spacing fixes for elements touching the top */
+header {
+  margin-bottom: 16px !important; /* Space below header */
+}
+
+/* Cards after header need spacing but header can touch top */
+header + div,
+header + section,
+.musik-fokus, 
+.music-fokus, 
+.music-player-container {
+  margin-top: 16px !important; /* Add space after header */
+}
+
+/* Music player card with album art and controls */
+.mini-player, .player-mini, [class*="mini-player"] {
+  display: flex !important;
+  align-items: center !important;
+  padding: 8px 12px !important;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 8px !important;
+  margin: 8px !important;
+}
+
+/* Thumbnail styling */
+.track-thumbnail, .album-art, [class*="thumbnail"] {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 4px !important;
+  margin-right: 12px !important;
+  object-fit: cover !important;
+}
+
+/* Track info styling */
+.track-info, .track-details, [class*="track-info"] {
+  flex: 1 !important;
+  overflow: hidden !important;
+}
+
+.track-title, .song-title, [class*="title"] {
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  color: white !important;
+}
+
+.track-artist, .artist-name, [class*="artist"] {
+  font-size: 0.8rem !important;
+  opacity: 0.8 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Large devices (desktops) */
+@media (min-width: 992px) {
+  main {
+    padding: 1.5rem !important;
+    max-width: 1200px !important;
+  }
+}
+
+/* Extra large devices */
+@media (min-width: 1200px) {
+  main {
+    padding: 2rem !important;
+  }
 }

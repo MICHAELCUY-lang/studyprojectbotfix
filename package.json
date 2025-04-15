@@ -1,4 +1,25 @@
 {
+  "name": "studyprojectbot",
+  "version": "1.0.0",
+  "description": "Aplikasi manajemen tugas, Pomodoro timer, dan pemutar musik untuk meningkatkan produktivitas belajar",
+  "homepage": ".",
+  "main": "index.js",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "keywords": [
+    "education",
+    "productivity",
+    "tasks",
+    "pomodoro",
+    "music",
+    "pwa"
+  ],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
     "@reduxjs/toolkit": "^2.6.1",
     "date-fns": "^4.1.0",
@@ -14,19 +35,6 @@
     "styled-components": "^6.1.17",
     "workbox-window": "^7.3.0"
   },
-  "name": "studyprojectbot",
-  "version": "1.0.0",
-  "description": "Kesimpulan Aplikasi: StudyProjectBot",
-  "main": "index.js",
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "browserslist": {
     "production": [
       ">0.2%",
@@ -38,5 +46,19 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "resolutions": {
+    "nth-check": "^2.0.1"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^14.1.2",
+    "@testing-library/user-event": "^14.5.1"
   }
 }
