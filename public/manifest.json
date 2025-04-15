@@ -1,0 +1,74 @@
+{
+  "short_name": "StudyProjectBot",
+  "name": "StudyProjectBot - Asisten Belajar",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#4A00E0",
+  "background_color": "#ffffff",
+  "orientation": "portrait",
+  "scope": "/",
+  "description": "Aplikasi manajemen tugas, Pomodoro timer, dan pemutar musik untuk meningkatkan produktivitas belajar",
+  "categories": ["education", "productivity", "lifestyle"],
+  "lang": "id",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Tambah Tugas",
+      "short_name": "Tugas",
+      "description": "Tambahkan tugas baru",
+      "url": "/?action=new-task",
+      "icons": [{ "src": "logo192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Timer Pomodoro",
+      "short_name": "Pomodoro",
+      "description": "Mulai sesi fokus Pomodoro",
+      "url": "/pomodoro",
+      "icons": [{ "src": "logo192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Putar Musik",
+      "short_name": "Musik",
+      "description": "Putar musik konsentrasi",
+      "url": "/music",
+      "icons": [{ "src": "logo192.png", "sizes": "192x192" }]
+    }
+  ],
+  "related_applications": [],
+  "screenshots": [
+    {
+      "src": "screenshot1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "Tampilan Beranda StudyProjectBot"
+    },
+    {
+      "src": "screenshot2.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "Timer Pomodoro StudyProjectBot"
+    }
+  ]
+}
