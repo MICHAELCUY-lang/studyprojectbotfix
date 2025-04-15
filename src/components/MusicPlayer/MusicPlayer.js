@@ -4,53 +4,37 @@ import { PreferencesModel } from "../../services/db";
 import * as YouTubeService from "../../services/youtube";
 import * as SpotifyService from "../../services/spotify";
 
-// Styled components - fixed with horizontal playlist layout
+// Styled components - versi yang lebih ringkas
 const MusicPlayerContainer = styled.div`
   display: flex;
   flex-direction: column;
   background: linear-gradient(135deg, #25aa60 0%, #1d8549 100%);
   color: white;
   border-radius: 0.75rem;
-  padding: 1rem;
-  box-shadow: 0 4px 12px rgba(29, 133, 73, 0.25);
+  padding: 0.75rem;
+  box-shadow: 0 3px 8px rgba(29, 133, 73, 0.25);
   position: relative;
   overflow: hidden;
-  width: 100%;
-  height: ${(props) => (props.$isExpanded ? "auto" : "auto")};
-`;
-
-const WaveBackground = styled.div`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 30px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z' opacity='0.1' fill='%23FFFFFF'%3E%3C/path%3E%3C/svg%3E");
-  background-size: cover;
-  background-repeat: no-repeat;
-  z-index: 0;
-  opacity: 0.5;
 `;
 
 const PlayerHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
   z-index: 1;
 `;
 
 const PlayerTitle = styled.h3`
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  z-index: 1;
+  gap: 0.3rem;
 
   i {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
   }
 `;
 
@@ -61,8 +45,7 @@ const ToggleButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  padding: 4px;
   cursor: pointer;
   border-radius: 50%;
 
@@ -71,27 +54,26 @@ const ToggleButton = styled.button`
   }
 
   i {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
   }
 `;
 
-const CurrentTrackContainer = styled.div`
+const MiniPlayer = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  z-index: 1;
-  padding: 0.5rem;
+  gap: 0.5rem;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 0.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 0.4rem;
+  padding: 0.4rem;
+  margin-bottom: ${(props) => (props.$isExpanded ? "0.75rem" : "0")};
 `;
 
 const TrackThumbnail = styled.img`
-  width: 40px;
-  height: 40px;
-  border-radius: 0.25rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 0.2rem;
   object-fit: cover;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 `;
 
 const TrackInfo = styled.div`
@@ -101,14 +83,14 @@ const TrackInfo = styled.div`
 
 const TrackTitle = styled.div`
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 `;
 
 const TrackArtist = styled.div`
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   opacity: 0.8;
   white-space: nowrap;
   overflow: hidden;
@@ -116,9 +98,9 @@ const TrackArtist = styled.div`
 `;
 
 const PlayButton = styled.button`
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
   border-radius: 50%;
   background: white;
   border: none;
@@ -127,99 +109,33 @@ const PlayButton = styled.button`
   justify-content: center;
   color: #25aa60;
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
   padding: 0;
-
-  i {
-    font-size: 1.2rem;
-  }
-`;
-
-// Container for expanded view with horizontal layout
-const ExpandedContent = styled.div`
-  display: ${(props) => (props.$isVisible ? "flex" : "none")};
-  flex-direction: row;
-  gap: 1rem;
-  margin-top: 0.75rem;
-  flex-wrap: wrap;
-`;
-
-// Left side content (service tabs, controls)
-const ControlsContent = styled.div`
-  flex: 1;
-  min-width: 200px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-`;
-
-// Right side content (playlist)
-const PlaylistContent = styled.div`
-  flex: 2;
-  min-width: 250px;
-`;
-
-const ServiceTabs = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  z-index: 1;
-`;
-
-const ServiceTab = styled.button`
-  padding: 0.5rem;
-  background-color: ${(props) =>
-    props.$active ? "rgba(255, 255, 255, 0.25)" : "rgba(255, 255, 255, 0.1)"};
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 0.5rem;
-  font-size: 0.85rem;
-  font-weight: 500;
-  cursor: pointer;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
 
   i {
     font-size: 1rem;
   }
 `;
 
-const ContentTypeToggle = styled.div`
-  display: flex;
+const ExpandedContent = styled.div`
+  display: ${(props) => (props.$isVisible ? "flex" : "none")};
+  flex-direction: column;
   gap: 0.5rem;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 0.5rem;
-  padding: 0.25rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-`;
-
-const ContentTypeButton = styled.button`
-  flex: 1;
-  padding: 0.4rem;
-  background-color: ${(props) =>
-    props.$active ? "rgba(255, 255, 255, 0.2)" : "transparent"};
-  color: white;
-  border: none;
-  border-radius: 0.3rem;
-  font-size: 0.8rem;
-  font-weight: ${(props) => (props.$active ? "600" : "400")};
-  cursor: pointer;
 `;
 
 const SearchContainer = styled.div`
   position: relative;
   z-index: 1;
+  display: flex;
+  gap: 0.5rem;
 `;
 
 const SearchInput = styled.input`
-  width: 100%;
-  padding: 0.6rem;
-  padding-right: 2.5rem;
-  border-radius: 0.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  font-size: 0.85rem;
+  flex: 1;
+  padding: 0.4rem 0.5rem;
+  border-radius: 0.4rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 0.75rem;
   background-color: rgba(255, 255, 255, 0.15);
   color: white;
   outline: none;
@@ -229,49 +145,37 @@ const SearchInput = styled.input`
   }
 `;
 
-const SearchButton = styled.button`
-  position: absolute;
-  right: 0.25rem;
-  top: 50%;
-  transform: translateY(-50%);
-  background: transparent;
+const ServiceTab = styled.button`
+  padding: 0.4rem 0.6rem;
+  background-color: ${(props) =>
+    props.$active ? "rgba(255, 255, 255, 0.25)" : "rgba(255, 255, 255, 0.1)"};
+  color: white;
   border: none;
+  border-radius: 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 500;
   cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;
-  color: white;
-  height: 2rem;
-  width: 2rem;
+  gap: 0.3rem;
 
   i {
-    font-size: 1.1rem;
+    font-size: 0.9rem;
   }
-`;
-
-const HidePlayerButton = styled(ServiceTab)`
-  width: 100%;
-  margin-top: auto;
 `;
 
 const ResultsList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.4rem;
   background-color: rgba(255, 255, 255, 0.08);
-  border-radius: 0.5rem;
-  padding: 0.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  z-index: 1;
-  max-height: 280px;
+  border-radius: 0.4rem;
+  padding: 0.4rem;
+  max-height: 180px;
   overflow-y: auto;
 
   &::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
+    width: 3px;
   }
 
   &::-webkit-scrollbar-thumb {
@@ -283,9 +187,9 @@ const ResultsList = styled.div`
 const ResultItem = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  border-radius: 0.4rem;
+  gap: 0.4rem;
+  padding: 0.4rem;
+  border-radius: 0.3rem;
   background-color: rgba(255, 255, 255, 0.1);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -296,9 +200,9 @@ const ResultItem = styled.div`
 `;
 
 const ResultThumbnail = styled.img`
-  width: 36px;
-  height: 36px;
-  border-radius: 0.25rem;
+  width: 30px;
+  height: 30px;
+  border-radius: 0.2rem;
   object-fit: cover;
 `;
 
@@ -308,15 +212,15 @@ const ResultInfo = styled.div`
 `;
 
 const ResultTitle = styled.div`
-  font-weight: 600;
-  font-size: 0.8rem;
+  font-weight: 500;
+  font-size: 0.7rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 `;
 
 const ResultArtist = styled.div`
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   opacity: 0.8;
   white-space: nowrap;
   overflow: hidden;
@@ -327,7 +231,6 @@ const AudioPlayer = styled.audio`
   display: none;
 `;
 
-// Hidden iframe for YouTube autoplay
 const YouTubeFrame = styled.iframe`
   position: absolute;
   opacity: 0;
@@ -341,9 +244,9 @@ const YouTubeFrame = styled.iframe`
 const EqualizerContainer = styled.div`
   display: ${(props) => (props.$isVisible ? "flex" : "none")};
   align-items: flex-end;
-  height: 15px;
-  gap: 2px;
-  margin-left: 0.5rem;
+  height: 10px;
+  gap: 1px;
+  margin-left: 0.3rem;
 `;
 
 const EqualizerBar = styled.span`
@@ -367,18 +270,17 @@ const EqualizerBar = styled.span`
   }
 `;
 
-// Main component
+// Main component - lebih ringkas
 const MusicPlayer = ({ isBreak }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrack, setCurrentTrack] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [service, setService] = useState("youtube");
-  const [contentType, setContentType] = useState("tracks");
   const [isExpanded, setIsExpanded] = useState(false);
   const [recentlyPlayed, setRecentlyPlayed] = useState([]);
 
-  // Refs for media control
+  // Refs
   const audioRef = useRef(null);
   const youtubePlayerRef = useRef(null);
 
@@ -386,14 +288,10 @@ const MusicPlayer = ({ isBreak }) => {
   useEffect(() => {
     const initPlayer = async () => {
       try {
-        // Load preferences
-        const prefs = await PreferencesModel.getMusicPreferences();
-
         // Load recently played videos/tracks
         const recent = YouTubeService.getRecentlyPlayed();
         if (recent.length > 0) {
-          setRecentlyPlayed(recent.slice(0, 6));
-          // Set first track as current
+          setRecentlyPlayed(recent.slice(0, 4));
           setCurrentTrack(recent[0]);
         } else {
           // Load recommended content
@@ -423,22 +321,20 @@ const MusicPlayer = ({ isBreak }) => {
       youtubePlayerRef.current
     ) {
       // YouTube iframe API would be initialized here in a real implementation
-      // For now, we're using an iframe with autoplay=1 and mute=0
     }
   }, [isPlaying, currentTrack, service]);
 
-  // Handle audio playback for Spotify/preview URLs
+  // Handle audio playback for Spotify
   useEffect(() => {
     if (audioRef.current && service === "spotify") {
       if (isPlaying && currentTrack?.previewUrl) {
         audioRef.current.src = currentTrack.previewUrl;
-        audioRef.current.volume = 1.0; // Make sure volume is max
+        audioRef.current.volume = 1.0;
         const playPromise = audioRef.current.play();
 
         if (playPromise !== undefined) {
           playPromise.catch((error) => {
             console.error("Playback error:", error);
-            // Auto-play was prevented
             setIsPlaying(false);
           });
         }
@@ -475,14 +371,14 @@ const MusicPlayer = ({ isBreak }) => {
         return [
           {
             id: "DWcJFNfaw9c",
-            title: "Relaxing Piano Music for Stress Relief",
+            title: "Relaxing Piano Music",
             thumbnail: "https://i.ytimg.com/vi/DWcJFNfaw9c/hqdefault.jpg",
             artist: "Meditation Music",
             service: "youtube",
           },
           {
             id: "77ZozI0rw7w",
-            title: "Relaxing Sleep Music with Rain Sounds",
+            title: "Sleep Music with Rain",
             thumbnail: "https://i.ytimg.com/vi/77ZozI0rw7w/hqdefault.jpg",
             artist: "Sleep Music",
             service: "youtube",
@@ -492,14 +388,14 @@ const MusicPlayer = ({ isBreak }) => {
         return [
           {
             id: "jfKfPfyJRdk",
-            title: "lofi hip hop radio - beats to study/relax to",
+            title: "lofi hip hop radio",
             thumbnail: "https://i.ytimg.com/vi/jfKfPfyJRdk/hqdefault.jpg",
             artist: "Lofi Girl",
             service: "youtube",
           },
           {
             id: "5qap5aO4i9A",
-            title: "lofi hip hop radio - beats to relax/study to",
+            title: "beats to relax/study to",
             thumbnail: "https://i.ytimg.com/vi/5qap5aO4i9A/hqdefault.jpg",
             artist: "Lofi Girl",
             service: "youtube",
@@ -541,14 +437,7 @@ const MusicPlayer = ({ isBreak }) => {
     // If YouTube video, save to recently played
     if (service === "youtube") {
       YouTubeService.saveToRecentlyPlayed(track);
-      setRecentlyPlayed(YouTubeService.getRecentlyPlayed().slice(0, 6));
-    }
-
-    // For Spotify, use audio element to play preview URL
-    if (service === "spotify" && track.previewUrl && audioRef.current) {
-      audioRef.current.src = track.previewUrl;
-      audioRef.current.load();
-      // Play will be handled by the useEffect
+      setRecentlyPlayed(YouTubeService.getRecentlyPlayed().slice(0, 4));
     }
   };
 
@@ -564,18 +453,17 @@ const MusicPlayer = ({ isBreak }) => {
 
   // Handle search
   const handleSearch = async () => {
-    if (!searchQuery.trim()) return;
+    if (!searchQuery.trim()) {
+      loadRecommendations();
+      return;
+    }
 
     try {
       let results;
       if (service === "youtube") {
         results = await YouTubeService.searchVideos(searchQuery);
       } else {
-        if (contentType === "tracks") {
-          results = await SpotifyService.searchTracks(searchQuery);
-        } else {
-          results = await SpotifyService.searchPlaylists(searchQuery);
-        }
+        results = await SpotifyService.searchTracks(searchQuery);
       }
 
       if (results && results.length > 0) {
@@ -584,8 +472,8 @@ const MusicPlayer = ({ isBreak }) => {
         setSearchResults([
           {
             id: "no-results",
-            title: "No results found",
-            artist: "Try another search term",
+            title: "Tidak ada hasil",
+            artist: "Coba kata kunci lain",
             thumbnail: "/logo192.png",
             service: service,
           },
@@ -593,17 +481,15 @@ const MusicPlayer = ({ isBreak }) => {
       }
     } catch (error) {
       console.error("Error searching:", error);
-      // Fallback to mock data
       setSearchResults(getMockResults());
     }
   };
 
-  // Handle search input
+  // Handle search input and key press
   const handleSearchInputChange = (e) => {
     setSearchQuery(e.target.value);
   };
 
-  // Handle search key press
   const handleSearchKeyPress = (e) => {
     if (e.key === "Enter") {
       handleSearch();
@@ -617,8 +503,8 @@ const MusicPlayer = ({ isBreak }) => {
         {[...Array(3)].map((_, i) => (
           <EqualizerBar
             key={i}
-            $height={8 + Math.random() * 5}
-            $minHeight={3 + Math.random() * 2}
+            $height={6 + Math.random() * 4}
+            $minHeight={2 + Math.random() * 2}
             $duration={0.7 + Math.random() * 0.3}
             $delay={Math.random() * 0.3}
           />
@@ -628,18 +514,16 @@ const MusicPlayer = ({ isBreak }) => {
   };
 
   return (
-    <MusicPlayerContainer $isExpanded={isExpanded}>
-      <WaveBackground />
-
+    <MusicPlayerContainer>
       <PlayerHeader>
         <PlayerTitle>
           <i className="material-icons">{isBreak ? "spa" : "headphones"}</i>
-          {isBreak ? "Musik Relaksasi" : "Musik Fokus"}
+          {isBreak ? "Musik Relax" : "Musik Fokus"}
           {renderEqualizer()}
         </PlayerTitle>
         <ToggleButton
           onClick={toggleExpand}
-          title={isExpanded ? "Sembunyikan opsi" : "Tampilkan opsi"}
+          title={isExpanded ? "Sembunyikan" : "Tampilkan"}
         >
           <i className="material-icons">
             {isExpanded ? "expand_less" : "expand_more"}
@@ -648,7 +532,7 @@ const MusicPlayer = ({ isBreak }) => {
       </PlayerHeader>
 
       {currentTrack && (
-        <CurrentTrackContainer>
+        <MiniPlayer $isExpanded={isExpanded}>
           <TrackThumbnail
             src={
               service === "youtube"
@@ -659,7 +543,7 @@ const MusicPlayer = ({ isBreak }) => {
           />
           <TrackInfo>
             <TrackTitle>{currentTrack.title || currentTrack.name}</TrackTitle>
-            <TrackArtist>{currentTrack.artist || "Unknown Artist"}</TrackArtist>
+            <TrackArtist>{currentTrack.artist || "Unknown"}</TrackArtist>
           </TrackInfo>
           <PlayButton
             onClick={togglePlayPause}
@@ -669,120 +553,75 @@ const MusicPlayer = ({ isBreak }) => {
               {isPlaying ? "pause" : "play_arrow"}
             </i>
           </PlayButton>
-        </CurrentTrackContainer>
+        </MiniPlayer>
       )}
 
       <ExpandedContent $isVisible={isExpanded}>
-        <ControlsContent>
-          <ServiceTabs>
-            <ServiceTab
-              $active={service === "youtube"}
-              onClick={() => setService("youtube")}
-            >
-              <i className="material-icons">videocam</i>
-              YouTube
-            </ServiceTab>
-            <ServiceTab
-              $active={service === "spotify"}
-              onClick={() => setService("spotify")}
-            >
-              <i className="material-icons">audiotrack</i>
-              Spotify
-            </ServiceTab>
-          </ServiceTabs>
+        <SearchContainer>
+          <SearchInput
+            type="text"
+            placeholder={`Cari ${service === "youtube" ? "video" : "musik"}...`}
+            value={searchQuery}
+            onChange={handleSearchInputChange}
+            onKeyPress={handleSearchKeyPress}
+          />
+          <ServiceTab
+            $active={service === "youtube"}
+            onClick={() => setService("youtube")}
+          >
+            <i className="material-icons">videocam</i>
+            YT
+          </ServiceTab>
+          <ServiceTab
+            $active={service === "spotify"}
+            onClick={() => setService("spotify")}
+          >
+            <i className="material-icons">audiotrack</i>
+            Spotify
+          </ServiceTab>
+        </SearchContainer>
 
-          <ContentTypeToggle>
-            <ContentTypeButton
-              $active={contentType === "tracks"}
-              onClick={() => setContentType("tracks")}
-            >
-              {service === "youtube" ? "Videos" : "Tracks"}
-            </ContentTypeButton>
-            <ContentTypeButton
-              $active={contentType === "playlists"}
-              onClick={() => setContentType("playlists")}
-            >
-              Playlists
-            </ContentTypeButton>
-          </ContentTypeToggle>
-
-          <SearchContainer>
-            <SearchInput
-              type="text"
-              placeholder={`Cari ${
-                service === "youtube" ? "video" : "musik"
-              }...`}
-              value={searchQuery}
-              onChange={handleSearchInputChange}
-              onKeyPress={handleSearchKeyPress}
-            />
-            <SearchButton onClick={handleSearch} title="Cari">
-              <i className="material-icons">search</i>
-            </SearchButton>
-          </SearchContainer>
-
-          <HidePlayerButton onClick={toggleExpand}>
-            <i className="material-icons">arrow_upward</i>
-            Sembunyikan Player
-          </HidePlayerButton>
-        </ControlsContent>
-
-        <PlaylistContent>
-          <ResultsList>
-            {searchResults.length > 0 ? (
-              searchResults.map((result) => (
-                <ResultItem key={result.id} onClick={() => playTrack(result)}>
-                  <ResultThumbnail
-                    src={
-                      service === "youtube"
-                        ? result.thumbnail
-                        : result.albumImage || "/logo192.png"
-                    }
-                    alt={result.title || result.name}
-                  />
-                  <ResultInfo>
-                    <ResultTitle>{result.title || result.name}</ResultTitle>
-                    <ResultArtist>
-                      {service === "youtube"
-                        ? result.artist
-                        : contentType === "tracks"
-                        ? result.artist
-                        : `${result.trackCount || 0} tracks • ${
-                            result.owner || "Spotify"
-                          }`}
-                    </ResultArtist>
-                  </ResultInfo>
-                </ResultItem>
-              ))
-            ) : recentlyPlayed.length > 0 && service === "youtube" ? (
-              recentlyPlayed.map((item) => (
-                <ResultItem key={item.id} onClick={() => playTrack(item)}>
-                  <ResultThumbnail src={item.thumbnail} alt={item.title} />
-                  <ResultInfo>
-                    <ResultTitle>{item.title}</ResultTitle>
-                    <ResultArtist>{item.artist}</ResultArtist>
-                  </ResultInfo>
-                </ResultItem>
-              ))
-            ) : (
-              <ResultItem>
+        <ResultsList>
+          {searchResults.length > 0 ? (
+            searchResults.map((result) => (
+              <ResultItem key={result.id} onClick={() => playTrack(result)}>
+                <ResultThumbnail
+                  src={
+                    service === "youtube"
+                      ? result.thumbnail
+                      : result.albumImage || "/logo192.png"
+                  }
+                  alt={result.title || result.name}
+                />
                 <ResultInfo>
-                  <ResultTitle>Tidak ada hasil</ResultTitle>
-                  <ResultArtist>Coba kata kunci lain</ResultArtist>
+                  <ResultTitle>{result.title || result.name}</ResultTitle>
+                  <ResultArtist>{result.artist || "Unknown"}</ResultArtist>
                 </ResultInfo>
               </ResultItem>
-            )}
-          </ResultsList>
-        </PlaylistContent>
+            ))
+          ) : recentlyPlayed.length > 0 && service === "youtube" ? (
+            recentlyPlayed.map((item) => (
+              <ResultItem key={item.id} onClick={() => playTrack(item)}>
+                <ResultThumbnail src={item.thumbnail} alt={item.title} />
+                <ResultInfo>
+                  <ResultTitle>{item.title}</ResultTitle>
+                  <ResultArtist>{item.artist}</ResultArtist>
+                </ResultInfo>
+              </ResultItem>
+            ))
+          ) : (
+            <ResultItem>
+              <ResultInfo>
+                <ResultTitle>Tidak ada hasil</ResultTitle>
+                <ResultArtist>Coba kata kunci lain</ResultArtist>
+              </ResultInfo>
+            </ResultItem>
+          )}
+        </ResultsList>
       </ExpandedContent>
 
       {/* Audio element for Spotify preview playback */}
-      <AudioPlayer
-        ref={audioRef}
-        controls={false}
-        preload="auto"
-        volume={1.0}
-      />
+      <AudioPlayer ref={audioRef} controls={false} preload="auto" />
 
       {/* Hidden YouTube iframe for audio playback */}
       {service === "youtube" && currentTrack && isPlaying && (
